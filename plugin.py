@@ -29,7 +29,7 @@ import subprocess
 #
 from pathlib import Path
 
-pathOfPackages = '/usr/local/lib/python3.5/dist-packages'
+pathOfPackages = '/usr/local/lib/python3.7/dist-packages'
 
 if Path(pathOfPackages).exists():
     sys.path.append(pathOfPackages)

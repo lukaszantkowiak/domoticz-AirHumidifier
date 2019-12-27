@@ -13,7 +13,7 @@ else:
     print("Find where is located package miio.airhumidifier and correct variable: pathOfPackages")
     print("pathOfPackages:", pathOfPackages)
 
-pathOfPackages = '/usr/local/lib/python3.5/dist-packages'
+pathOfPackages = '/usr/local/lib/python3.7/dist-packages'
 
 if Path(pathOfPackages).exists():
     sys.path.append(pathOfPackages)
@@ -35,7 +35,7 @@ parser.add_argument('--debug', action='store_true', help='if define more output 
 args = parser.parse_args()
 if args.debug:
     print(args)
-MyHumidifier = miio.airhumidifier.AirHumidifier(args.IPaddress, args.token)
+MyHumidifier = miio.airhumidifier.AirHumidifierCA1(args.IPaddress, args.token)
 
 if args.mode:
     if args.mode == "Auto":
