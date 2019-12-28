@@ -127,6 +127,8 @@ class ConnectionErrorException(Exception):
 class HumidifierStatus:
     """Container for status reports from the air humidifier."""
 
+    __slots__ = ["humidity"]
+
     def __init__(self, AddressIP, token):
         """
         Response of script:
