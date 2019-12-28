@@ -151,11 +151,11 @@ class HumidifierStatus:
             data = data[19:-2]
             data = data.replace(' ', '')
             data = dict(item.split("=") for item in data.split(","))
-            self.power = data["power"]
-            # self.humidity = int(data["humidity"][:-1])
-            self.temperature = data["temperature"]
-            self.mode = data["mode"]
-            self.target_humidity = int(data["target_humidity"][:-1])
+            # self.power = data["power"]
+            self.humidity = int(data["humidity"][:-1])
+            # self.temperature = data["temperature"]
+            # self.mode = data["mode"]
+            # self.target_humidity = int(data["target_humidity"][:-1])
             for item in data.keys():
                 Domoticz.Debug(str(item) + " => " + str(data[item]))
         except subprocess.CalledProcessError as e:
