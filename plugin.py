@@ -160,7 +160,7 @@ class HumidifierStatus:
             for item in data.keys():
                 Domoticz.Debug(str(item) + " => " + str(data[item]))
         except subprocess.CalledProcessError as e:
-            Domoticz.Log("e: " + e)
+            Domoticz.Log("e: " + e.output)
             Domoticz.Log("Something fail: " + e.output.decode())
 
 
