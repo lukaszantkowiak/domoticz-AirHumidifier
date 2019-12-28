@@ -135,10 +135,11 @@ class HumidifierStatus:
         token = str(token)
         try:
             data = subprocess.check_output(['bash', '-c', './MyHumidify.py ' + addressIP + ' ' + token], cwd=Parameters["HomeFolder"])
+            Domoticz.Log(data)
+            Domoticz.Log(data)
             data = str(data.decode('utf-8'))
             if Parameters["Mode6"] == 'Debug':
                 Domoticz.Debug(data[:30] + " .... " + data[-30:])
-            Domoticz.Log(data)
             data = data[19:-2]
             data = data.replace(' ', '')
             data = dict(item.split("=") for item in data.split(","))
