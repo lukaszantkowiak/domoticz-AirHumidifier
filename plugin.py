@@ -127,9 +127,10 @@ class ConnectionErrorException(Exception):
 class HumidifierStatus:
     """Container for status reports from the air humidifier."""
 
-    # __slots__ = ['abc', 'ijk']
+    __slots__ = ['power', 'humidity', 'temperature', 'mode', 'target_humidity']
 
     def __init__(self, AddressIP, token):
+        Domoticz.Log("tutaj 4")
         """
         Response of script:
                "<AirHumidifierStatus power=on, humidity=36%," \
@@ -152,7 +153,7 @@ class HumidifierStatus:
             data = data.replace(' ', '')
             data = dict(item.split("=") for item in data.split(","))
             self.power = data["power"]
-            # self.humidity = int(data["humidity"][:-1])
+            self.humidity = int(data["humidity"][:-1])
             self.temperature = data["temperature"]
             self.mode = data["mode"]
             self.target_humidity = int(data["target_humidity"][:-1])
@@ -166,6 +167,7 @@ class BasePlugin:
     enabled = False
 
     def __init__(self):
+        Domoticz.Log("tutaj 3")
         # Consts
         self.version = "0.1.1"
 
@@ -195,6 +197,7 @@ class BasePlugin:
         return
 
     def onStart(self):
+        Domoticz.Log("tutaj 2")
         Domoticz.Debug("onStart called")
         if Parameters["Mode6"] == 'Debug':
             self.debug = True
@@ -388,6 +391,7 @@ class BasePlugin:
                 createSingleDevice(k)
 
     def onHeartbeat(self, fetch=False):
+        Domoticz.Log("tutaj 1")
         Domoticz.Debug("onHeartbeat called")
         now = datetime.datetime.now()
 
