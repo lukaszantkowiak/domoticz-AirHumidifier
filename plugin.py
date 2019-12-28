@@ -124,8 +124,10 @@ class ConnectionErrorException(Exception):
 
 # temporery class
 
-class AirHumidifierStatus:
+class HumidifierStatus:
     """Container for status reports from the air humidifier."""
+
+    # __slots__ = ['abc', 'ijk']
 
     def __init__(self, AddressIP, token):
         """
@@ -150,7 +152,7 @@ class AirHumidifierStatus:
             data = data.replace(' ', '')
             data = dict(item.split("=") for item in data.split(","))
             self.power = data["power"]
-            self.humidity = int(data["humidity"][:-1])
+            # self.humidity = int(data["humidity"][:-1])
             self.temperature = data["temperature"]
             self.mode = data["mode"]
             self.target_humidity = int(data["target_humidity"][:-1])
@@ -493,7 +495,7 @@ class BasePlugin:
 
     def sensor_measurement(self, addressIP, token):
         """current sensor measurements"""
-        return AirHumidifierStatus(addressIP, token)
+        return HumidifierStatus(addressIP, token)
 
 
 global _plugin
