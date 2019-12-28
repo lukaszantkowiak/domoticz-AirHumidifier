@@ -127,7 +127,7 @@ class ConnectionErrorException(Exception):
 class HumidifierStatus:
     """Container for status reports from the air humidifier."""
 
-    __slots__ = ["humidity"]
+    # __slots__ = ["humidity"]
 
     def __init__(self, AddressIP, token):
         """
@@ -152,7 +152,7 @@ class HumidifierStatus:
             data = data.replace(' ', '')
             data = dict(item.split("=") for item in data.split(","))
             self.power = data["power"]
-            self.humidity = int(data["humidity"][:-1])
+            # self.humidity = int(data["humidity"][:-1])
             self.temperature = data["temperature"]
             self.mode = data["mode"]
             self.target_humidity = int(data["target_humidity"][:-1])
