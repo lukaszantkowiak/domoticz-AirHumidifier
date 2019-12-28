@@ -139,7 +139,7 @@ class HumidifierStatus:
         addressIP = str(AddressIP)
         token = str(token)
         try:
-            Domoticz.Log('jestem tu')
+            Domoticz.Log('./MyHumidify.py ' + addressIP + ' ' + token)
             data = subprocess.check_output(['bash', '-c', './MyHumidify.py ' + addressIP + ' ' + token],
                                            cwd=Parameters["HomeFolder"])
             Domoticz.Log(data)
