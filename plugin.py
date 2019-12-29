@@ -133,20 +133,23 @@ class HumidifierStatus:
 
         addressIP = str(AddressIP)
         token = str(token)
-        data = subprocess.check_output(['bash', '-c', './MyHumidify.py ' + addressIP + ' ' + token], cwd=Parameters["HomeFolder"])
-        data = str(data.decode('utf-8'))
-        if Parameters["Mode6"] == 'Debug':
-            Domoticz.Debug(data[:30] + " .... " + data[-30:])
-        data = data[19:-2]
-        data = data.replace(' ', '')
-        data = dict(item.split("=") for item in data.split(","))
-        self.power = data["power"]
-        self.humidity = int(data["humidity"][:-1])
-        self.temperature = data["temperature"]
-        self.mode = data["mode"]
-        self.target_humidity = int(data["target_humidity"][:-1])
-        for item in data.keys():
-            Domoticz.Debug(str(item) + " => " + str(data[item]))
+        try:
+            data = subprocess.check_output(['bash', '-c', './MyHumidify.py ' + addressIP + ' ' + token], cwd=Parameters["HomeFolder"])
+            data = str(data.decode('utf-8'))
+            if Parameters["Mode6"] == 'Debug':
+                Domoticz.Debug(data[:30] + " .... " + data[-30:])
+            data = data[19:-2]
+            data = data.replace(' ', '')
+            data = dict(item.split("=") for item in data.split(","))
+            self.power = data["power"]
+            self.humidity = int(data["humidity"][:-1])
+            self.temperature = data["temperature"]
+            self.mode = data["mode"]
+            self.target_humidity = int(data["target_humidity"][:-1])
+            for item in data.keys():
+                Domoticz.Debug(str(item) + " => " + str(data[item]))
+        except subprocess.CalledProcessError as e:
+            Domoticz.Log("Something fail: " + e.output.decode())
 
 class BasePlugin:
     enabled = False
