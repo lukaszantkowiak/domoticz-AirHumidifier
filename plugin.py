@@ -93,9 +93,8 @@ L10N = {
         "Unrecognized error: %s":
             "Nierozpoznany błąd: %s"
     },
-    'en': {}
+    'en': { }
 }
-
 
 def _(key):
     try:
@@ -103,31 +102,25 @@ def _(key):
     except KeyError:
         return key
 
-
 class UnauthorizedException(Exception):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
-
 
 class SensorNotFoundException(Exception):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
 
-
 class ConnectionErrorException(Exception):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
 
-
 # temporery class
 
 class HumidifierStatus:
     """Container for status reports from the air humidifier."""
-
-    # __slots__ = ["humidity"]
 
     def __init__(self, AddressIP, token):
         """
@@ -140,27 +133,20 @@ class HumidifierStatus:
 
         addressIP = str(AddressIP)
         token = str(token)
-        try:
-            Domoticz.Log('./MyHumidify.py ' + addressIP + ' ' + token)
-            data = subprocess.check_output(['bash', '-c', './MyHumidify.py ' + addressIP + ' ' + token],
-                                           cwd=Parameters["HomeFolder"])
-            Domoticz.Log(data)
-            data = str(data.decode('utf-8'))
-            if Parameters["Mode6"] == 'Debug':
-                Domoticz.Debug(data[:30] + " .... " + data[-30:])
-            data = data[19:-2]
-            data = data.replace(' ', '')
-            data = dict(item.split("=") for item in data.split(","))
-            # self.power = data["power"]
-            self.humidity = int(data["humidity"][:-1])
-            # self.temperature = data["temperature"]
-            # self.mode = data["mode"]
-            # self.target_humidity = int(data["target_humidity"][:-1])
-            for item in data.keys():
-                Domoticz.Debug(str(item) + " => " + str(data[item]))
-        except subprocess.CalledProcessError as e:
-            Domoticz.Log("Something fail: " + e.output.decode())
-
+        data = subprocess.check_output(['bash', '-c', './MyHumidify.py ' + addressIP + ' ' + token], cwd=Parameters["HomeFolder"])
+        data = str(data.decode('utf-8'))
+        if Parameters["Mode6"] == 'Debug':
+            Domoticz.Debug(data[:30] + " .... " + data[-30:])
+        data = data[19:-2]
+        data = data.replace(' ', '')
+        data = dict(item.split("=") for item in data.split(","))
+        self.power = data["power"]
+        self.humidity = int(data["humidity"][:-1])
+        self.temperature = data["temperature"]
+        self.mode = data["mode"]
+        self.target_humidity = int(data["target_humidity"][:-1])
+        for item in data.keys():
+            Domoticz.Debug(str(item) + " => " + str(data[item]))
 
 class BasePlugin:
     enabled = False
@@ -170,29 +156,31 @@ class BasePlugin:
         self.version = "0.1.1"
 
         self.EXCEPTIONS = {
-            "SENSOR_NOT_FOUND": 1,
-            "UNAUTHORIZED": 2,
+            "SENSOR_NOT_FOUND":     1,
+            "UNAUTHORIZED":         2,
         }
 
         self.debug = False
         self.inProgress = False
 
         # Do not change below UNIT constants!
-        self.UNIT_AIR_QUALITY_INDEX = 1
-        self.UNIT_AIR_POLLUTION_LEVEL = 2
-        self.UNIT_TEMPERATURE = 3
-        self.UNIT_HUMIDITY = 4
-        self.UNIT_MOTOR_SPEED = 5
-        self.UNIT_AVARAGE_AQI = 6
+        self.UNIT_AIR_QUALITY_INDEX     = 1
+        self.UNIT_AIR_POLLUTION_LEVEL   = 2
+        self.UNIT_TEMPERATURE           = 3
+        self.UNIT_HUMIDITY              = 4
+        self.UNIT_MOTOR_SPEED           = 5
+        self.UNIT_AVARAGE_AQI           = 6
 
-        self.UNIT_POWER_CONTROL = 10
-        self.UNIT_MODE_CONTROL = 11
-        self.UNIT_MOTOR_SPEED_FAVORITE = 12
+        self.UNIT_POWER_CONTROL         = 10
+        self.UNIT_MODE_CONTROL          = 11
+        self.UNIT_MOTOR_SPEED_FAVORITE  = 12
 
-        self.UNIT_TARGET_HUMIDITY = 13
+        self.UNIT_TARGET_HUMIDITY       = 13
+
 
         self.nextpoll = datetime.datetime.now()
         return
+
 
     def onStart(self):
         Domoticz.Debug("onStart called")
@@ -206,55 +194,56 @@ class BasePlugin:
         Domoticz.Heartbeat(20)
         self.pollinterval = int(Parameters["Mode3"]) * 60
 
+
         self.variables = {
             self.UNIT_TEMPERATURE: {
-                "Name": _("Temperature"),
+                "Name":     _("Temperature"),
                 "TypeName": "Temperature",
-                "Used": 0,
-                "nValue": 0,
-                "sValue": None,
+                "Used":     0,
+                "nValue":   0,
+                "sValue":   None,
             },
             self.UNIT_HUMIDITY: {
-                "Name": _("Humidity"),
+                "Name":     _("Humidity"),
                 "TypeName": "Humidity",
-                "Used": 0,
-                "nValue": 0,
-                "sValue": None,
+                "Used":     0,
+                "nValue":   0,
+                "sValue":   None,
             },
             self.UNIT_TARGET_HUMIDITY: {
-                "Name": _("Target Humidity"),
+                "Name":     _("Target Humidity"),
                 "TypeName": "Humidity",
-                "Used": 0,
-                "nValue": 0,
-                "sValue": None,
+                "Used":     0,
+                "nValue":   0,
+                "sValue":   None,
             }
         }
 
-        # create switches
+        #create switches
         if (len(Devices) == 0):
             Domoticz.Device(Name="Power", Unit=self.UNIT_POWER_CONTROL, TypeName="Switch", Image=7).Create()
             Options = {"LevelActions": "||||",
                        "LevelNames": "Auto|Silent|Medium|High",
                        "LevelOffHidden": "true",
                        "SelectorStyle": "0"
-                       }
+                      }
             Domoticz.Device(Name="Source", Unit=self.UNIT_MODE_CONTROL, TypeName="Selector Switch", Switchtype=18,
                             Image=7,
                             Options=Options).Create()
             HumidityTarget = {"LevelActions": "|||",
-                              "LevelNames": "50%|60%|70%",
-                              "LevelOffHidden": "false",
-                              "SelectorStyle": "0"}
+                            "LevelNames": "50%|60%|70%",
+                            "LevelOffHidden": "false",
+                            "SelectorStyle": "0"}
             Domoticz.Device(Name="Target", Unit=self.UNIT_TARGET_HUMIDITY, TypeName="Selector Switch", Switchtype=18,
                             Image=7,
                             Options=HumidityTarget).Create()
             Domoticz.Log("Devices created.")
         else:
-            if (self.UNIT_POWER_CONTROL in Devices):
+            if (self.UNIT_POWER_CONTROL in Devices ):
                 Domoticz.Log("Device UNIT_MODE_CONTROL with id " + str(self.UNIT_POWER_CONTROL) + " exist")
             else:
                 Domoticz.Device(Name="Power", Unit=self.UNIT_POWER_CONTROL, TypeName="Switch", Image=7).Create()
-            if (self.UNIT_MODE_CONTROL in Devices):
+            if (self.UNIT_MODE_CONTROL in Devices ):
                 Domoticz.Log("Device UNIT_MODE_CONTROL with id " + str(self.UNIT_MODE_CONTROL) + " exist")
             else:
                 Options = {"LevelActions": "||||",
@@ -269,11 +258,10 @@ class BasePlugin:
                 Domoticz.Log("Device UNIT_TARGET_HUMIDITY with id " + str(self.UNIT_TARGET_HUMIDITY) + " exist")
             else:
                 HumidityTarget = {"LevelActions": "|||",
-                                  "LevelNames": "50%|60%|70%",
-                                  "LevelOffHidden": "false",
-                                  "SelectorStyle": "0"}
-                Domoticz.Device(Name="Target", Unit=self.UNIT_TARGET_HUMIDITY, TypeName="Selector Switch",
-                                Switchtype=18,
+                                "LevelNames": "50%|60%|70%",
+                                "LevelOffHidden": "false",
+                                "SelectorStyle": "0"}
+                Domoticz.Device(Name="Target", Unit=self.UNIT_TARGET_HUMIDITY, TypeName="Selector Switch", Switchtype=18,
                                 Image=7,
                                 Options=HumidityTarget).Create()
 
@@ -366,11 +354,11 @@ class BasePlugin:
                 _image = 0
 
             Domoticz.Debug(_("Creating device Name=%(Name)s; Unit=%(Unit)d; ; TypeName=%(TypeName)s; Used=%(Used)d") % {
-                'Name': _name,
-                'Unit': _unit,
-                'TypeName': _typename,
-                'Used': _used,
-            })
+                               'Name':     _name,
+                               'Unit':     _unit,
+                               'TypeName': _typename,
+                               'Used':     _used,
+                           })
 
             Domoticz.Device(
                 Name=_name,
@@ -386,6 +374,7 @@ class BasePlugin:
         else:
             for k in self.variables.keys():
                 createSingleDevice(k)
+
 
     def onHeartbeat(self, fetch=False):
         Domoticz.Debug("onHeartbeat called")
@@ -415,16 +404,16 @@ class BasePlugin:
                 humidity = int(round(res.humidity))
                 if humidity >= 60 and humidity <= 70:
                     pollutionText = _("Great humidity")
-                    humidity_status = 1  # great
+                    humidity_status = 1 # great
                 elif (humidity >= 45 and humidity < 60) or (humidity > 70 and humidity <= 80):
                     pollutionText = _("Good humidity")
-                    humidity_status = 0  # normal
+                    humidity_status = 0 # normal
                 elif (humidity >= 30 and humidity < 45) or (humidity > 80):
                     pollutionText = _("Poor humidity")
-                    humidity_status = 3  # wet/poor
+                    humidity_status = 3 # wet/poor
                 elif humidity < 30:
                     pollutionText = _("Bad humidity")
-                    humidity_status = 2  # dry
+                    humidity_status = 2 # dry
 
                 self.variables[self.UNIT_HUMIDITY]['nValue'] = humidity
                 self.variables[self.UNIT_HUMIDITY]['sValue'] = str(humidity_status)
@@ -476,6 +465,7 @@ class BasePlugin:
             Domoticz.Debug("onHeartbeat finished")
         return True
 
+
     def doUpdate(self):
         Domoticz.Log(_("Starting device update"))
         for unit in self.variables:
@@ -497,57 +487,46 @@ class BasePlugin:
         """current sensor measurements"""
         return HumidifierStatus(addressIP, token)
 
-
 global _plugin
 _plugin = BasePlugin()
-
 
 def onStart():
     global _plugin
     _plugin.onStart()
 
-
 def onStop():
     global _plugin
     _plugin.onStop()
-
 
 def onConnect(Status, Description):
     global _plugin
     _plugin.onConnect(Status, Description)
 
-
 def onMessage(Data, Status, Extra):
     global _plugin
     _plugin.onMessage(Data, Status, Extra)
-
 
 def onCommand(Unit, Command, Level, Hue):
     global _plugin
     _plugin.onCommand(Unit, Command, Level, Hue)
 
-
 def onNotification(Name, Subject, Text, Status, Priority, Sound, ImageFile):
     global _plugin
     _plugin.onNotification(Name, Subject, Text, Status, Priority, Sound, ImageFile)
 
-
 def onDisconnect():
     global _plugin
     _plugin.onDisconnect()
-
 
 def onHeartbeat():
     global _plugin
     _plugin.onHeartbeat()
 
     # Generic helper functions
-
-
 def DumpConfigToLog():
     for x in Parameters:
         if Parameters[x] != "":
-            Domoticz.Debug("'" + x + "':'" + str(Parameters[x]) + "'")
+            Domoticz.Debug( "'" + x + "':'" + str(Parameters[x]) + "'")
     Domoticz.Debug("Device count: " + str(len(Devices)))
     for x in Devices:
         Domoticz.Debug("Device:           " + str(x) + " - " + str(Devices[x]))
@@ -557,7 +536,6 @@ def DumpConfigToLog():
         Domoticz.Debug("Device sValue:   '" + Devices[x].sValue + "'")
         Domoticz.Debug("Device LastLevel: " + str(Devices[x].LastLevel))
     return
-
 
 def UpdateDevice(Unit, nValue, sValue):
     # Make sure that the Domoticz device still exists (they can be deleted) before updating it
